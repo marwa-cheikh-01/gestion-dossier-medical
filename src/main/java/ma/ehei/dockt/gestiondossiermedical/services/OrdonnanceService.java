@@ -1,12 +1,15 @@
 package ma.ehei.dockt.gestiondossiermedical.services;
 
+
 import ma.ehei.dockt.gestiondossiermedical.models.Ordonnance;
 import ma.ehei.dockt.gestiondossiermedical.repositories.OrdonnanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+
+import ma.ehei.dockt.gestiondossiermedical.dto.RdvDTO;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,31 +21,47 @@ public class OrdonnanceService {
     @Autowired
     private OrdonnanceRepository ordonnanceRepository;
 
-    // 1. Récupérer toutes les ordonnances pour un RDV précis (pour l'historique)
+    @Autowired
+    private RdvClientService rdvClientService;
+
+    // 1. Récupérer toutes les ordonnances pour un RDV
     public List<Ordonnance> getOrdonnancesParRdv(Long idRdv) {
         return ordonnanceRepository.findByIdRdv(idRdv);
     }
 
-    // 2. Sauvegarder une nouvelle ordonnance (dictée ou écrite à la main)
-    public Ordonnance sauvegarderOrdonnance(Ordonnance ordonnance) {
-        // On s'assure que la date est bien celle d'aujourd'hui
-        ordonnance.setDateEmmission(LocalDate.now());
+    // 2. Récupérer une ordonnance par son ID
+    public Ordonnance getOrdonnanceById(Long id) {
+        return ordonnanceRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Ordonnance avec l'ID " + id + " introuvable."
+                ));
+    }
 
-        // On sauvegarde dans la base de données
+    //3. Récupérer les ord by id patient
+    public List<Ordonnance> getOrdonnancesParPatient(Long patientId) {
+        List<RdvDTO> rdvs = rdvClientService.getRdvsByPatient(patientId);
+        List<Long> rdvIds = rdvs.stream()
+                .map(RdvDTO::getId)
+                .collect(java.util.stream.Collectors.toList());
+        if (rdvIds.isEmpty()) return List.of();
+        return ordonnanceRepository.findByIdRdvIn(rdvIds);
+    }
+
+    // 4. Sauvegarder une ordonnance
+    public Ordonnance sauvegarderOrdonnance(Ordonnance ordonnance) {
+        // Validate RDV exists in MS2
+        RdvDTO rdv = rdvClientService.getRdvById(ordonnance.getIdRdv());
+        if (rdv == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "RDV avec l'ID " + ordonnance.getIdRdv() + " introuvable dans MS2."
+            );
+        }
+        ordonnance.setDateEmmission(LocalDate.now());
         return ordonnanceRepository.save(ordonnance);
     }
 
-    // 3. (Bonus) Supprimer une ordonnance si le médecin s'est trompé
-    public void supprimerOrdonnance(Long id) {
-        // 1. On vérifie d'abord si l'ordonnance existe
-        if (!ordonnanceRepository.existsById(id)) {
-            // 2. Si elle n'existe pas, on déclenche une Erreur 404 avec un message clair
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    "Impossible de supprimer : l'ordonnance avec l'ID " + id + " n'existe pas."
-            );
-        }
 
-        // 3. Si elle existe, on procède à la suppression
-        ordonnanceRepository.deleteById(id);
-    }}
+
+}

@@ -12,4 +12,6 @@ public interface CompteRenduRepository extends JpaRepository<CompteRendu, Long> 
     // C'est ici la magie ! En écrivant juste le nom de cette méthode,
     // Spring comprend qu'il doit chercher les comptes rendus par ID de RDV.
     List<CompteRendu> findByIdRdv(Long idRdv);
+
+    List<CompteRendu> findByIdRdvIn(List<Long> idRdvs);
 }

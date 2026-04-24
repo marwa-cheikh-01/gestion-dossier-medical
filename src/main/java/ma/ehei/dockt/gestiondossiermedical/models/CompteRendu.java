@@ -24,8 +24,11 @@ public class CompteRendu {
     @Column(name = "contenu", nullable = false, length = 500)
     private String contenu;
 
-    @Column(name = "statut", nullable = false, length = 150)
+    @Column(name = "statut_cr", nullable = false, length = 150)
     private String statut;
+
+    @Column(name = "message_patient", length = 500)
+    private String messagePatient;
 
     @Column(name = "id_rdv", nullable = false)
     private Long idRdv;

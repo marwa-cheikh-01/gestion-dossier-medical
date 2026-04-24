@@ -10,4 +10,6 @@ import java.util.List;
 public interface OrdonnanceRepository extends JpaRepository<Ordonnance, Long> {
 
     List<Ordonnance> findByIdRdv(Long idRdv);
+
+    List<Ordonnance> findByIdRdvIn(List<Long> idRdvs);
 }

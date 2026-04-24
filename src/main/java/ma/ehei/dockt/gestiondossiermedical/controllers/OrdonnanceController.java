@@ -15,21 +15,31 @@ public class OrdonnanceController {
     @Autowired
     private OrdonnanceService service;
 
-    // URL : GET http://localhost:8081/api/ordonnances/rdv/1
+    // GET http://localhost:8080/api/ordonnances/rdv/1
+    //hadi dyal marwa jibi ord by idrdv dont need it nkhliwha tanchofo mn bead
     @GetMapping("/rdv/{idRdv}")
     public List<Ordonnance> getOrdonnances(@PathVariable Long idRdv) {
         return service.getOrdonnancesParRdv(idRdv);
     }
 
-    // URL : POST http://localhost:8081/api/ordonnances
+    //get all ord by patient
+    @GetMapping("/patient/{patientId}")
+    public List<Ordonnance> getOrdonnancesParPatient(@PathVariable Long patientId) {
+        return service.getOrdonnancesParPatient(patientId);
+    }
+
+    // GET http://localhost:8080/api/ordonnances/1
+    //voir single ord
+    @GetMapping("/{id}")
+    public Ordonnance getOrdonnanceById(@PathVariable Long id) {
+        return service.getOrdonnanceById(id);
+    }
+
+    // POST http://localhost:8080/api/ordonnances
+    //valider cree ard
     @PostMapping
     public Ordonnance sauvegarderOrdonnance(@RequestBody Ordonnance ordonnance) {
         return service.sauvegarderOrdonnance(ordonnance);
     }
 
-    // URL : DELETE http://localhost:8081/api/ordonnances/1
-    @DeleteMapping("/{id}")
-    public void supprimerOrdonnance(@PathVariable Long id) {
-        service.supprimerOrdonnance(id);
-    }
 }
