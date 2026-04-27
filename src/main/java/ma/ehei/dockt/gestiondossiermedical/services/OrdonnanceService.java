@@ -1,6 +1,5 @@
 package ma.ehei.dockt.gestiondossiermedical.services;
 
-
 import ma.ehei.dockt.gestiondossiermedical.models.Ordonnance;
 import ma.ehei.dockt.gestiondossiermedical.repositories.OrdonnanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +37,9 @@ public class OrdonnanceService {
                 ));
     }
 
-    //3. Récupérer les ord by id patient
-    public List<Ordonnance> getOrdonnancesParPatient(Long patientId) {
-        List<RdvDTO> rdvs = rdvClientService.getRdvsByPatient(patientId);
+    // 3. Récupérer les ord by id patient
+    public List<Ordonnance> getOrdonnancesParPatient(Long patientId, String bearerToken) {
+        List<RdvDTO> rdvs = rdvClientService.getRdvsByPatient(patientId, bearerToken);
         List<Long> rdvIds = rdvs.stream()
                 .map(RdvDTO::getId)
                 .collect(java.util.stream.Collectors.toList());
@@ -49,9 +48,9 @@ public class OrdonnanceService {
     }
 
     // 4. Sauvegarder une ordonnance
-    public Ordonnance sauvegarderOrdonnance(Ordonnance ordonnance) {
+    public Ordonnance sauvegarderOrdonnance(Ordonnance ordonnance, String bearerToken) {
         // Validate RDV exists in MS2
-        RdvDTO rdv = rdvClientService.getRdvById(ordonnance.getIdRdv());
+        RdvDTO rdv = rdvClientService.getRdvById(ordonnance.getIdRdv(), bearerToken);
         if (rdv == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
@@ -61,7 +60,4 @@ public class OrdonnanceService {
         ordonnance.setDateEmmission(LocalDate.now());
         return ordonnanceRepository.save(ordonnance);
     }
-
-
-
 }

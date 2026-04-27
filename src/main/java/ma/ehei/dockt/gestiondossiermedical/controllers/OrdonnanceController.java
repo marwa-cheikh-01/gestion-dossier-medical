@@ -16,30 +16,33 @@ public class OrdonnanceController {
     private OrdonnanceService service;
 
     // GET http://localhost:8080/api/ordonnances/rdv/1
-    //hadi dyal marwa jibi ord by idrdv dont need it nkhliwha tanchofo mn bead
+    // hadi dyal marwa jibi ord by idrdv dont need it nkhliwha tanchofo mn bead
     @GetMapping("/rdv/{idRdv}")
     public List<Ordonnance> getOrdonnances(@PathVariable Long idRdv) {
         return service.getOrdonnancesParRdv(idRdv);
     }
 
-    //get all ord by patient
+    // get all ord by patient
     @GetMapping("/patient/{patientId}")
-    public List<Ordonnance> getOrdonnancesParPatient(@PathVariable Long patientId) {
-        return service.getOrdonnancesParPatient(patientId);
+    public List<Ordonnance> getOrdonnancesParPatient(
+            @PathVariable Long patientId,
+            @RequestHeader("Authorization") String bearerToken) {
+        return service.getOrdonnancesParPatient(patientId, bearerToken);
     }
 
     // GET http://localhost:8080/api/ordonnances/1
-    //voir single ord
+    // voir single ord
     @GetMapping("/{id}")
     public Ordonnance getOrdonnanceById(@PathVariable Long id) {
         return service.getOrdonnanceById(id);
     }
 
     // POST http://localhost:8080/api/ordonnances
-    //valider cree ard
+    // valider cree ord
     @PostMapping
-    public Ordonnance sauvegarderOrdonnance(@RequestBody Ordonnance ordonnance) {
-        return service.sauvegarderOrdonnance(ordonnance);
+    public Ordonnance sauvegarderOrdonnance(
+            @RequestBody Ordonnance ordonnance,
+            @RequestHeader("Authorization") String bearerToken) {
+        return service.sauvegarderOrdonnance(ordonnance, bearerToken);
     }
-
 }

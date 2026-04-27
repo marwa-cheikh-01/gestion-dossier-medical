@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ma.ehei.dockt.gestiondossiermedical.dto.RdvDTO;
 
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -38,8 +37,8 @@ public class CompteRenduService {
     }
 
     // 3. Récupérer les CR par id patient
-    public List<CompteRendu> getComptesRendusParPatient(Long patientId) {
-        List<RdvDTO> rdvs = rdvClientService.getRdvsByPatient(patientId);
+    public List<CompteRendu> getComptesRendusParPatient(Long patientId, String bearerToken) {
+        List<RdvDTO> rdvs = rdvClientService.getRdvsByPatient(patientId, bearerToken);
         List<Long> rdvIds = rdvs.stream()
                 .map(RdvDTO::getId)
                 .collect(java.util.stream.Collectors.toList());
@@ -48,24 +47,24 @@ public class CompteRenduService {
     }
 
     // 4. Patient demande un CR (statut = DEMANDE)
-    public CompteRendu demanderCompteRendu(CompteRendu cr) {
-        validerRdvExiste(cr.getIdRdv());
+    public CompteRendu demanderCompteRendu(CompteRendu cr, String bearerToken) {
+        validerRdvExiste(cr.getIdRdv(), bearerToken);
         cr.setStatut("DEMANDE");
         cr.setDateRedaction(LocalDate.now());
         return compteRenduRepository.save(cr);
     }
 
     // 5. Médecin sauvegarde brouillon (statut = EN_ATTENTE)
-    public CompteRendu sauvegarderBrouillon(CompteRendu cr) {
-        validerRdvExiste(cr.getIdRdv());
+    public CompteRendu sauvegarderBrouillon(CompteRendu cr, String bearerToken) {
+        validerRdvExiste(cr.getIdRdv(), bearerToken);
         cr.setStatut("EN_ATTENTE");
         cr.setDateRedaction(LocalDate.now());
         return compteRenduRepository.save(cr);
     }
 
     // 6. Médecin valide le CR (statut = VALIDE)
-    public CompteRendu validerCompteRendu(CompteRendu cr) {
-        validerRdvExiste(cr.getIdRdv());
+    public CompteRendu validerCompteRendu(CompteRendu cr, String bearerToken) {
+        validerRdvExiste(cr.getIdRdv(), bearerToken);
         cr.setStatut("VALIDE");
         cr.setDateRedaction(LocalDate.now());
         return compteRenduRepository.save(cr);
@@ -91,9 +90,14 @@ public class CompteRenduService {
         return compteRenduRepository.save(existing);
     }
 
-    //9. helper to avoid repeating
-    private void validerRdvExiste(Long idRdv) {
-        RdvDTO rdv = rdvClientService.getRdvById(idRdv);
+    // 9. Récupérer les CR par statut
+    public List<CompteRendu> getComptesRendusParStatut(String statut) {
+        return compteRenduRepository.findByStatut(statut);
+    }
+
+    // 10. helper to avoid repeating
+    private void validerRdvExiste(Long idRdv, String bearerToken) {
+        RdvDTO rdv = rdvClientService.getRdvById(idRdv, bearerToken);
         if (rdv == null) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
@@ -101,7 +105,4 @@ public class CompteRenduService {
             );
         }
     }
-
-
-
 }

@@ -14,4 +14,6 @@ public interface CompteRenduRepository extends JpaRepository<CompteRendu, Long> 
     List<CompteRendu> findByIdRdv(Long idRdv);
 
     List<CompteRendu> findByIdRdvIn(List<Long> idRdvs);
+
+    List<CompteRendu> findByStatut(String statut);
 }

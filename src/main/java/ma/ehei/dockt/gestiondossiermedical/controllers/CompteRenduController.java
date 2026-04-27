@@ -27,38 +27,55 @@ public class CompteRenduController {
         return service.getCompteRenduById(id);
     }
 
-    //get all CR by patient id
+    // GET all CR by patient id
     @GetMapping("/patient/{patientId}")
-    public List<CompteRendu> getComptesRendusParPatient(@PathVariable Long patientId) {
-        return service.getComptesRendusParPatient(patientId);
+    public List<CompteRendu> getComptesRendusParPatient(
+            @PathVariable Long patientId,
+            @RequestHeader("Authorization") String bearerToken) {
+        return service.getComptesRendusParPatient(patientId, bearerToken);
     }
 
     // POST http://localhost:8080/api/comptes-rendus/demande
     @PostMapping("/demande")
-    public CompteRendu demanderCompteRendu(@RequestBody CompteRendu cr) {
-        return service.demanderCompteRendu(cr);
+    public CompteRendu demanderCompteRendu(
+            @RequestBody CompteRendu cr,
+            @RequestHeader("Authorization") String bearerToken) {
+        return service.demanderCompteRendu(cr, bearerToken);
     }
 
     // POST http://localhost:8080/api/comptes-rendus/brouillon
     @PostMapping("/brouillon")
-    public CompteRendu sauvegarderBrouillon(@RequestBody CompteRendu cr) {
-        return service.sauvegarderBrouillon(cr);
+    public CompteRendu sauvegarderBrouillon(
+            @RequestBody CompteRendu cr,
+            @RequestHeader("Authorization") String bearerToken) {
+        return service.sauvegarderBrouillon(cr, bearerToken);
     }
 
     // POST http://localhost:8080/api/comptes-rendus/valider
     @PostMapping("/valider")
-    public CompteRendu validerCompteRendu(@RequestBody CompteRendu cr) {
-        return service.validerCompteRendu(cr);
+    public CompteRendu validerCompteRendu(
+            @RequestBody CompteRendu cr,
+            @RequestHeader("Authorization") String bearerToken) {
+        return service.validerCompteRendu(cr, bearerToken);
     }
 
-
     @PutMapping("/brouillon/{id}")
-    public CompteRendu mettreAJourBrouillon(@PathVariable Long id, @RequestBody CompteRendu cr) {
+    public CompteRendu mettreAJourBrouillon(
+            @PathVariable Long id,
+            @RequestBody CompteRendu cr) {
         return service.mettreAJourBrouillon(id, cr);
     }
 
     @PutMapping("/valider/{id}")
-    public CompteRendu validerCompteRendu(@PathVariable Long id, @RequestBody CompteRendu cr) {
+    public CompteRendu validerCompteRendu(
+            @PathVariable Long id,
+            @RequestBody CompteRendu cr) {
         return service.validerCompteRenduById(id, cr);
+    }
+
+    // GET all CRs by statut — for médecin dashboard
+    @GetMapping("/statut/{statut}")
+    public List<CompteRendu> getComptesRendusParStatut(@PathVariable String statut) {
+        return service.getComptesRendusParStatut(statut);
     }
 }
